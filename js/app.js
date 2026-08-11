@@ -73,7 +73,7 @@ async function renderList(token) {
 
   if (token !== renderGeneration) return;
 
-  const valid = posts.filter(Boolean).sort((a, b) => (a.date < b.date ? 1 : -1));
+  const valid = posts.filter(Boolean).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
   if (!valid.length) {
     app.innerHTML = `<p class="status">아직 작성된 글이 없습니다.</p>`;
