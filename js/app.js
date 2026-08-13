@@ -2,6 +2,42 @@
 const app = document.getElementById("app");
 const postNav = document.getElementById("post-nav");
 
+// 미니 웹앱 포트폴리오. 새 웹앱을 추가할 때 이 배열에 항목만 추가하면 된다.
+const apps = [
+  {
+    name: "2048",
+    description: "방향키(또는 스와이프)로 숫자 타일을 밀어서 합치는 퍼즐 게임. 점수판 포함.",
+    path: "apps/2048/index.html",
+  },
+];
+
+function renderApps() {
+  if (!apps.length) return "";
+  return `
+    <section class="apps-section">
+      <h2 class="apps-heading">웹앱</h2>
+      <ul class="apps-grid">
+        ${apps
+          .map(
+            (item) => `
+          <li class="app-card">
+            <a class="app-card-link" href="${item.path}" target="_blank" rel="noopener">
+              <div class="app-preview">
+                <iframe src="${item.path}" title="${item.name} 미리보기" loading="lazy" tabindex="-1"></iframe>
+              </div>
+              <div class="app-info">
+                <h3>${item.name}</h3>
+                <p>${item.description}</p>
+              </div>
+            </a>
+          </li>`
+          )
+          .join("")}
+      </ul>
+    </section>
+  `;
+}
+
 // 빠르게 연속 이동할 때 늦게 끝난 이전 렌더링이 최신 화면을 덮어쓰지 않도록
 // 라우팅마다 세대(generation) 토큰을 발급해, 최신 토큰일 때만 DOM에 반영한다.
 let renderGeneration = 0;
@@ -115,6 +151,7 @@ async function renderList(token) {
   }
 
   app.innerHTML = `
+    ${renderApps()}
     <ul class="post-list">
       ${posts
         .map(
