@@ -14,6 +14,11 @@ const apps = [
     description: "16x16 격자에 도트를 찍어 그림을 그리고 PNG로 저장하는 미니 에디터.",
     path: "apps/pixel-editor/index.html",
   },
+  {
+    name: "테트리스",
+    description: "떨어지는 블록을 이동·회전시켜 줄을 채우는 고전 퍼즐 게임. 점수·레벨·다음 블록 미리보기 포함.",
+    path: "apps/tetris/index.html",
+  },
 ];
 
 function renderApps() {

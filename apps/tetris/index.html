@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>테트리스</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <a class="back-link" href="../../index.html">← 블로그로 돌아가기</a>
+    <h1 class="title">테트리스</h1>
+    <p class="hint">방향키로 이동/회전, Space로 하드 드롭, P로 일시정지.</p>
+  </header>
+
+  <div class="game-area">
+    <div class="board-wrap">
+      <canvas id="board" class="board" role="img" aria-label="테트리스 게임 보드"></canvas>
+
+      <div class="overlay" id="pause-overlay" hidden>
+        <div class="overlay-panel">
+          <p class="overlay-title">PAUSED</p>
+          <button type="button" class="btn" id="resume-btn">재개</button>
+        </div>
+      </div>
+
+      <div class="overlay" id="gameover-overlay" hidden>
+        <div class="overlay-panel">
+          <p class="overlay-title">Game Over</p>
+          <p class="overlay-text">최종 점수: <span id="final-score">0</span></p>
+          <div class="overlay-actions">
+            <button type="button" class="btn" id="gameover-restart-btn">다시 시작</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="panel-buttons">
+        <button type="button" class="btn" id="pause-btn">일시정지</button>
+        <button type="button" class="btn" id="restart-btn">다시 시작</button>
+      </div>
+
+      <div class="stats" aria-live="polite">
+        <div class="stat-box">
+          <span class="stat-label">SCORE</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">BEST</span>
+          <span class="stat-value" id="best">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">LEVEL</span>
+          <span class="stat-value" id="level">1</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">LINES</span>
+          <span class="stat-value" id="lines">0</span>
+        </div>
+      </div>
+
+      <div class="next-box">
+        <span class="stat-label">NEXT</span>
+        <canvas id="next" class="next-canvas" width="96" height="96"></canvas>
+      </div>
+    </aside>
+  </div>
+
+  <div class="touch-controls">
+    <button type="button" class="touch-btn" id="btn-left" aria-label="왼쪽으로 이동">◀</button>
+    <button type="button" class="touch-btn" id="btn-rotate" aria-label="회전">⟳</button>
+    <button type="button" class="touch-btn" id="btn-down" aria-label="소프트 드롭">▼</button>
+    <button type="button" class="touch-btn" id="btn-right" aria-label="오른쪽으로 이동">▶</button>
+  </div>
+</div>
+
+<script src="game.js" defer></script>
+</body>
+</html>
