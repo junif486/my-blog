@@ -9,6 +9,11 @@ const apps = [
     description: "방향키(또는 스와이프)로 숫자 타일을 밀어서 합치는 퍼즐 게임. 점수판 포함.",
     path: "apps/2048/index.html",
   },
+  {
+    name: "픽셀 아트 에디터",
+    description: "16x16 격자에 도트를 찍어 그림을 그리고 PNG로 저장하는 미니 에디터.",
+    path: "apps/pixel-editor/index.html",
+  },
 ];
 
 function renderApps() {
