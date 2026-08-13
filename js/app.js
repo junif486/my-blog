@@ -1,5 +1,6 @@
 // 해시 라우터: "#/" -> 글 목록, "#/post/<slug>" -> 글 상세.
 const app = document.getElementById("app");
+const postNav = document.getElementById("post-nav");
 
 // 빠르게 연속 이동할 때 늦게 끝난 이전 렌더링이 최신 화면을 덮어쓰지 않도록
 // 라우팅마다 세대(generation) 토큰을 발급해, 최신 토큰일 때만 DOM에 반영한다.
@@ -43,46 +44,79 @@ function renderTags(tags) {
   return `<ul class="tags">${tags.map((tag) => `<li class="tag">${tag}</li>`).join("")}</ul>`;
 }
 
+// 글 메타데이터는 사이드바 내비게이션과 목록 화면 양쪽에서 필요하므로
+// 한 번만 fetch하도록 결과를 캐싱해 공유한다.
+let postsMetaPromise = null;
+
+async function loadPostsMeta() {
+  if (!postsMetaPromise) {
+    postsMetaPromise = (async () => {
+      const filenames = await loadManifest();
+      const posts = await Promise.all(
+        filenames.map(async (filename) => {
+          try {
+            const { meta, content } = await loadPost(filename);
+            return {
+              slug: slugFromFilename(filename),
+              title: meta.title || slugFromFilename(filename),
+              date: meta.date || "",
+              tags: meta.tags || [],
+              excerpt: excerptFrom(content),
+            };
+          } catch {
+            return null;
+          }
+        })
+      );
+      return posts.filter(Boolean).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+    })();
+  }
+  return postsMetaPromise;
+}
+
+async function renderSidebar(activeSlug, token) {
+  try {
+    const posts = await loadPostsMeta();
+    if (token !== renderGeneration) return;
+    postNav.innerHTML = `
+      <a class="nav-link ${!activeSlug ? "active" : ""}" href="#/">전체 글</a>
+      <ul class="nav-list">
+        ${posts
+          .map(
+            (post) => `
+          <li>
+            <a class="nav-link ${post.slug === activeSlug ? "active" : ""}" href="#/post/${post.slug}">${post.title}</a>
+          </li>`
+          )
+          .join("")}
+      </ul>
+    `;
+  } catch {
+    if (token === renderGeneration) postNav.innerHTML = "";
+  }
+}
+
 async function renderList(token) {
   app.innerHTML = `<p class="status">글을 불러오는 중…</p>`;
 
-  let filenames;
+  let posts;
   try {
-    filenames = await loadManifest();
-  } catch (err) {
+    posts = await loadPostsMeta();
+  } catch {
     if (token === renderGeneration) app.innerHTML = `<p class="status">글 목록을 불러오지 못했습니다.</p>`;
     return;
   }
 
-  const posts = await Promise.all(
-    filenames.map(async (filename) => {
-      try {
-        const { meta, content } = await loadPost(filename);
-        return {
-          slug: slugFromFilename(filename),
-          title: meta.title || slugFromFilename(filename),
-          date: meta.date || "",
-          tags: meta.tags || [],
-          excerpt: excerptFrom(content),
-        };
-      } catch {
-        return null;
-      }
-    })
-  );
-
   if (token !== renderGeneration) return;
 
-  const valid = posts.filter(Boolean).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-
-  if (!valid.length) {
+  if (!posts.length) {
     app.innerHTML = `<p class="status">아직 작성된 글이 없습니다.</p>`;
     return;
   }
 
   app.innerHTML = `
     <ul class="post-list">
-      ${valid
+      ${posts
         .map(
           (post) => `
         <li class="post-card">
@@ -148,16 +182,16 @@ function route() {
   const token = ++renderGeneration;
   const hash = window.location.hash;
   const postMatch = hash.match(/^#\/post\/(.+)$/);
+  const slug = postMatch ? decodeURIComponent(postMatch[1]) : null;
 
-  if (postMatch) {
-    renderDetail(decodeURIComponent(postMatch[1]), token);
+  renderSidebar(slug, token);
+
+  if (slug) {
+    renderDetail(slug, token);
   } else {
     renderList(token);
   }
 }
 
 window.addEventListener("hashchange", route);
-window.addEventListener("DOMContentLoaded", () => {
-  initTheme();
-  route();
-});
+window.addEventListener("DOMContentLoaded", route);
